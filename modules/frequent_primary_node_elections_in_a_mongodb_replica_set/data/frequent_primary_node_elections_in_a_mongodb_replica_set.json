@@ -1,0 +1,134 @@
+{
+  "name": "frequent_primary_node_elections_in_a_mongodb_replica_set",
+  "description": "This incident type refers to a recurring problem in a MongoDB replica set where the primary node is frequently being elected, causing disruption to the database operations. This can occur due to various reasons such as network issues, hardware failures, or misconfiguration of MongoDB replica set. The frequent elections can lead to reduced performance, data inconsistency, and downtime of the database system. It requires prompt investigation and resolution to prevent further disruptions and ensure the stability of the database operations.",
+  "params": [
+    {
+      "name": "CONFIG_FILE_PATH",
+      "value": ""
+    },
+    {
+      "name": "USERNAME",
+      "value": ""
+    },
+    {
+      "name": "HOSTNAME",
+      "value": ""
+    },
+    {
+      "name": "AUTH_DATABASE",
+      "value": ""
+    },
+    {
+      "name": "NEW_ELECTION_TIMEOUT",
+      "value": ""
+    },
+    {
+      "name": "PASSWORD",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Frequent primary node elections in a MongoDB replica set.\nThis incident type refers to a recurring problem in a MongoDB replica set where the primary node is frequently being elected, causing disruption to the database operations. This can occur due to various reasons such as network issues, hardware failures, or misconfiguration of MongoDB replica set. The frequent elections can lead to reduced performance, data inconsistency, and downtime of the database system. It requires prompt investigation and resolution to prevent further disruptions and ensure the stability of the database operations."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if all nodes in the replica set are running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `echo \"rs.status()\" | mongo --host ${HOSTNAME} -u ${USERNAME} -p ${PASSWORD} --authenticationDatabase ${AUTH_DATABASE}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the replica set configuration"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `echo \"rs.conf()\" | mongo --host ${HOSTNAME} -u ${USERNAME} -p ${PASSWORD} --authenticationDatabase ${AUTH_DATABASE}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the replica set status"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `echo \"rs.status()\" | mongo --host ${HOSTNAME} -u ${USERNAME} -p ${PASSWORD} --authenticationDatabase ${AUTH_DATABASE}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the replica set oplog size and usage"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `echo \"db.getReplicationInfo()\" | mongo --host ${HOSTNAME} -u ${USERNAME} -p ${PASSWORD} --authenticationDatabase ${AUTH_DATABASE}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the replica set members' ping time"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `echo \"rs.isMaster()\" | mongo --host ${HOSTNAME} -u ${USERNAME} -p ${PASSWORD} --authenticationDatabase ${AUTH_DATABASE}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the replica set members' log files for errors"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -f /var/log/mongodb/mongod.log`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Consider increasing the election timeout value to allow more time for a primary node to recover before triggering an election."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_mongo_election_timeout($CONFIG_FILE_PATH, $NEW_ELECTION_TIMEOUT)"
+    }
+  ]
+}
